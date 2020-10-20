@@ -1,0 +1,110 @@
+#######################################################################################################################
+######################### Rock Paper Scissor game with Win-Stay–Lose-Switch strategy ##################################
+#######################################################################################################################
+# Scientists have conducted a study about the game Rock Paper Scissors to find strategies to win more likely.
+
+# So, I implemented the winning strategy according to the scientific paper “Cycle frequency in standard
+# Rock-Paper-Scissors games: Evidence from experimental economics” (https://arxiv.org/pdf/1301.3238.pdf).
+
+# The idea is, that winners normally stick to their action and losers are likely to switch to the choice of the winner
+
+# So, the best strategy is to anticipate that behaviour:
+# If you lose, make the gesture that beats the one that the opponent has chosen before, because the chance that he plays
+# confidently the same is high.
+# If you win, mirror the gesture that the opponent has played before because he thinks, that you do the same again.
+
+#######################################################################################################################
+import random
+
+# Function to find the winner of Rock Paper Scissors (Rock beats Scissors, Scissors beat Paper, Paper beats Rock)
+def rockpaperscissors(a, b):
+    player1 = 0
+    player2 = 0
+    if a == "rock":
+        if b == "scissors":
+            player1 = 1
+            print("Rock crushes scissors!")
+        if b == "paper":
+            player2 = 1
+            print("Paper covers rock!")
+    if a == "scissors":
+        if b == "paper":
+            player1 = 1
+            print("Scissors cut paper!")
+        if b == "rock":
+            player2 = 1
+            print("Rock crushes scissors!")
+    if a == "paper":
+        if b == "rock":
+            player1 = 1
+            print("Paper covers rock!")
+        if b == "scissors":
+            player2 = 1
+            print("Scissors cut paper!")
+    if player1 == player2:
+        print("Tie.")
+    if player1 == 1:
+        print("You win!")
+    if player2 == 1:
+        print("You lose!")
+    return player1, player2  # Winner = 1, Loser = 0, Tie: Both 0
+
+# Function to find the best option to draw (according to scientific paper)
+def strategy(outcome_computer, outcome_opponent, choice_opponent):
+    if outcome_opponent == 1:  # if player wins, anticipate that the he chooses the same again (choose the stronger one)
+        if choice_opponent == "rock":
+            choice_computer = "paper"
+        if choice_opponent == "paper":
+            choice_computer = "scissors"
+        if choice_opponent == "scissors":
+            choice_computer = "rock"
+    if outcome_computer == 1:  # if player loses, play the same as the opponent just did before (cause he will change)
+        choice_computer = choice_opponent
+    if outcome_computer == 0 and outcome_opponent == 0: # if no one wins, pick randomly
+        picks = [["rock"], ["paper"], ["scissors"]]
+        choice_computer = picks[random.randint(0, 2)][0]
+    return choice_computer  # the next move
+
+#######################################################################################################################
+print("It's Rock Paper Scissors Time!")
+
+# Choosing how many times you want to play
+times = []
+while not isinstance(times, int):
+    times = input("How many times do you want to play? ")
+    try:
+        times = int(times)
+    except ValueError:
+        print("You did not enter an integer. Please enter a whole number!")
+
+if times == 0:
+    print("Looks like you don't even want to play...")
+    exit()
+
+# Initialize variables
+(you, computer, player1, player2, choice_player) = (0, 0, 0, 0, 0)
+
+# Actual game
+for i in range(1, times+1):  # playing so many times as the player has chosen
+    print("––––––––––––––––––––––––––––––––––––––––––")
+    print(i, "of", times)
+
+    choice_computer = strategy(player2, player1, choice_player)  # Computer chooses
+
+    choice_player = input("Rock, Paper or Scissors? ").lower()  # Player choose
+    while choice_player not in ["rock", "paper", "scissors"]:  # Problem handling
+        choice_player = input("There was a typo. Try again! Rock, Paper or Scissors? ").lower()
+
+    (player1, player2) = rockpaperscissors(choice_player, choice_computer) # Finding the winner
+
+    you = you + player1
+    computer = computer + player2
+    print("Scores: You", you, "| Computer", computer)  # Statistics
+
+print("––––––––––––––––––––––––––––––––––––––––––")
+if you > computer:
+    print("You're the winner. Congratulations!")
+elif you < computer:
+    print("You're the loser. What a pity!")
+else:
+    print("Tie. You are as good as a computer!")
